@@ -18,7 +18,11 @@ namespace Coding.Lizards.Appharbor.Webservice.Proxy.Controllers {
 
         [HttpGet]
         public string Authenticate(string clientId, string redirectUrl) {
+#if DEBUG
             var redUrl = "http://" + Request.RequestUri.Host + ":" + Request.RequestUri.Port + "/appharbor/authenticated";
+#else
+            var redUrl = "https://appharbor-webservice-proxy.apphb.com/appharbor/authenticated";
+#endif
             var url = string.Format("https://appharbor.com/user/authorizations/new?client_id={0}&redirect_uri={1}&state={2}", clientId, HttpUtility.UrlEncode(redUrl), HttpUtility.UrlEncode(redirectUrl));
             return url;
         }
@@ -32,5 +36,11 @@ namespace Coding.Lizards.Appharbor.Webservice.Proxy.Controllers {
             }
             return Redirect(state);
         }
+
+        //public JsonResult<dynamic> GetRequest(string url, string access_token) {
+        //    var req = HttpWebRequest.CreateHttp(url);
+        //    req.Headers.Add(HttpRequestHeader.Authorization, string.Format("BEARER {0}", access_token));
+
+        //}
     }
 }
