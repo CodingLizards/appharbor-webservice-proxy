@@ -76,5 +76,23 @@ namespace Coding.Lizards.Appharbor.Webservice.Proxy.Controllers {
                 throw;
             }
         }
+
+        [HttpPost]
+        public async Task<dynamic> PostRequest(string url, string accesstoken) {
+            try {
+                var data = Encoding.ASCII.GetBytes(await Request.Content.ReadAsStringAsync());
+                var req = HttpWebRequest.CreateHttp(url);
+                req.ContentLength = data.Length;
+                req.Accept = "application/json";
+                req.Headers.Add(HttpRequestHeader.Authorization, string.Format("BEARER {0}", accesstoken));
+                using (var resp = await req.GetResponseAsync()) {
+                    using (var sr = new StreamReader(resp.GetResponseStream())) {
+                        return JsonConvert.DeserializeObject<dynamic>(await sr.ReadToEndAsync());
+                    }
+                }
+            } catch (Exception ex) {
+                throw;
+            }
+        }
     }
 }
