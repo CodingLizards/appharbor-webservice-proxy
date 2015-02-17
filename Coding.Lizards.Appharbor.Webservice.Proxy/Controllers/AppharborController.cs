@@ -82,11 +82,20 @@ namespace Coding.Lizards.Appharbor.Webservice.Proxy.Controllers {
             try {
                 var data = Encoding.ASCII.GetBytes(await Request.Content.ReadAsStringAsync());
                 var req = HttpWebRequest.CreateHttp(url);
+                req.Method = HttpMethod.Post.Method;
                 req.ContentLength = data.Length;
+                req.ContentType = Request.Content.Headers.ContentType.MediaType;
                 req.Accept = "application/json";
                 req.Headers.Add(HttpRequestHeader.Authorization, string.Format("BEARER {0}", accesstoken));
+                using (var stream = await req.GetRequestStreamAsync()) {
+                    await stream.WriteAsync(data, 0, data.Length);
+                }
                 using (var resp = await req.GetResponseAsync()) {
                     using (var sr = new StreamReader(resp.GetResponseStream())) {
+                        var result = await sr.ReadToEndAsync();
+                        if (string.IsNullOrWhiteSpace(result)) {
+                            return resp.Headers["Location"];
+                        }
                         return JsonConvert.DeserializeObject<dynamic>(await sr.ReadToEndAsync());
                     }
                 }
